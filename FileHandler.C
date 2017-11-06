@@ -8,8 +8,17 @@ FileHandler::FileHandler(SymbolList * defined_, SymbolList * undefined_){
     undefined = undefined_;
 }
 
-void FileHandler::handleObjectSymbol(std::string filename, char type){
-
+void FileHandler::handleObjectSymbol(std::string name, char type){
+    bool defined;
+    switch(type) {
+        case 'U':
+            defined = false;
+            break;
+        case 'D':
+        case 'T':
+            defined = true;
+            break;
+    }
 }
 
 bool FileHandler::objectFileNeeded(std::string filename){
