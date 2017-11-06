@@ -37,6 +37,11 @@ class SymbolList
       //sets iterate to first
       void startIterate();
 
+      //sets the iterate pointer to the symbol with the designated name
+      bool findName(std::string symbolName);
+
+      bool find1Before(std::string symbolName);
+
       //return NULL if iterate is NULL
       //if iterate is not NULL, it returns the name value in the
       //symbolEntry node pointed to by iterate and sets (*type) to its
