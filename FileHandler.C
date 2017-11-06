@@ -33,7 +33,8 @@ bool FileHandler::isObjectFile(std::string filename){
 }
 
 void FileHandler::handleObjectFile(std::string filename){
-    unsigned char * buffer = (char*)malloc (80 * 80 * sizeof(char));
+    //unsigned char **buffer = (char**)calloc (80 * 80, sizeof(char*));
+    unsigned char *buffer = malloc(80);
     FILE *filePointer;
     std::string nmCommand = strcat("nm ", filename);
     filePointer = popen(nmCommand, "r");
@@ -41,9 +42,10 @@ void FileHandler::handleObjectFile(std::string filename){
         std::cout << "popen failed\n";
         exit(1);
     }
-    int i = 0;    
-    while(fgets(buffer, sizeof(buffer), filePointer)){
-
+    char type;
+    std::string name;    
+    while(fgets(buffer, 80, filePointer)){
+        sscanf(buffer, "%d", &type, &name); 
     }
     pclose(filePointer);
              
