@@ -8,12 +8,12 @@
 //See SymbolList.h for the declarations
 
 //Initializes the first pointer to NULL
-SymbolList() {
+SymbolList::SymbolList() {
     first = NULL;
 }
 
 //Retrieves the type of the designated symbol name
-bool getSymbol(std::string symbolName, char* type) {
+bool SymbolList::getSymbol(std::string symbolName, char* type) {
     if(findName(symbolName)) {
         *type = iterate->type;
         return true;
@@ -22,14 +22,14 @@ bool getSymbol(std::string symbolName, char* type) {
 }
 
 //updates the type of the symbol with name symbolName
-void updateSymbol(std::string symbolName, char type) {
+void SymbolList::updateSymbol(std::string symbolName, char type) {
     if(findName(symbolName))
         iterate->type = type;    
 }
 
 //inserts a symbol with the name symbolName and the type char
 //at the END of the linked list
-void insertSymbol(std::string symbolName, char type) {
+void SymbolList::insertSymbol(std::string symbolName, char type) {
     startIterate();
     if(iterate == NULL) {
         first = &symbolEntry;
@@ -48,7 +48,7 @@ void insertSymbol(std::string symbolName, char type) {
 }
 
 //removes the symbolEntry node with the name symbolName
-void removeSymbol(std::string symbolName) {
+void SymbolList::removeSymbol(std::string symbolName) {
     if(find1Before(symbolName)) {
         iterate->next = iterate->next->next;
     }
@@ -70,11 +70,11 @@ void SymbolList::printSymbols(std::string header) {
 }
 
 //sets iterate to the beginning of the 
-void startIterate() {
+void SymbolList::startIterate() {
     iterate = first;
 }
 
-bool findName(std::string symbolName) {
+bool SymbolList::findName(std::string symbolName) {
     for(startIterate(); iterate != NULL; iterate = iterate->next) {
         if(iterate->name.compare(symbolName) == 0)
             return true;
@@ -82,7 +82,7 @@ bool findName(std::string symbolName) {
     return false;
 }
 
-bool find1Before(std::string symbolName) {
+bool SymbolList::find1Before(std::string symbolName) {
     startIterate();
     if(iterate == NULL)
         return false;
