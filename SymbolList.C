@@ -31,8 +31,8 @@ void SymbolList::updateSymbol(std::string symbolName, char type) {
 //at the END of the linked list
 void SymbolList::insertSymbol(std::string symbolName, char type) {
     startIterate();
-    symbolEntry *sl = malloc(sizeof(symbolEntry));
-    //{type, symbolName, NULL};
+    //symbolEntry * sl;
+    symbolEntry * sl = new symbolEntry();
     sl->type = type;
     sl->name = symbolName;
     sl->next = NULL;

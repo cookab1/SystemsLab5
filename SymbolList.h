@@ -6,6 +6,10 @@ class SymbolList
       char type;
       std::string name;
       struct symbolEntry * next;
+   
+      symbolEntry() {
+          next = NULL;
+      }
    } symbolEntry; 
 
    private:

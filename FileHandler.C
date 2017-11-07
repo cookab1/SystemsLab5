@@ -1,11 +1,18 @@
-#include "FileHandler.h"
+#include <iostream>
+#include <string>
+#include <unistd.h>
+#include <sys/stat.h>
 #include <cstdlib>
-#include <string.h>
 #include <stdio.h>
+#include "SymbolList.h"
+#include "FileHandler.h"
+#include "Resolve.h"
+#include <string.h>
+#include <sstream>
 
-FileHandler::FileHandler(SymbolList * defined_, SymbolList * undefined_){
-    defined = defined_;
-    undefined = undefined_;
+FileHandler::FileHandler(SymbolList * defined, SymbolList * undefined){
+    FileHandler::defined = defined;
+    FileHandler::undefined = undefined;
 }
 
 void FileHandler::handleObjectSymbol(std::string name, char type){
@@ -18,44 +25,48 @@ void FileHandler::handleObjectSymbol(std::string name, char type){
         switch(type) {
             case 'D':
             case 'T':
-                if(defined.getSymbol(name, &foundType)) {
+                if(defined->getSymbol(name, &foundType)) {
                     switch(foundType) {
                         case 'D':
                         case 'T':
                             mds = true; //multiply defined symbol
                         case 'C':
-                            defined.updateSymbol(name, type);
-                        case default:
+                            defined->updateSymbol(name, type);
+                        default:
                             invalid = true; //invalid type
                     }
-                } else if (undefined.findName(name)) {
-                    undefined.removeSymbol(name);
-                    defined.insertSymbol(name, type);
+                } else if (undefined->findName(name)) {
+                    undefined->removeSymbol(name);
+                    defined->insertSymbol(name, type);
                 }
                 break;
             case 'C':
-                if(!defined.findName(name))
-                    defined.insertSymbol(name, type);
-                if(undefined.findName(name))
-                    undefined.removeSymbol(name);
+                if(!defined->findName(name))
+                    defined->insertSymbol(name, type);
+                if(undefined->findName(name))
+                    undefined->removeSymbol(name);
                 break;
             case 'd':
             case 'b':
                 strcat(name, "." + num());
-                defined.insertSymbol(name, type);
+                //std::stringstream stream;
+                //stream << num();
+                //std::string tmpName = name + "." + stream.str();
+                
+                defined->insertSymbol(name, type);
                 break;
-            case default:
+            default:
                 invalid = true; //invalid type
                 break;
         }
     } else {
-        if(!undefined.findName(name)) {
-            undefined.insertSymbol(name, type);
+        if(!undefined->findName(name)) {
+            undefined->insertSymbol(name, type);
         }
     }
 }
 
-int FilHandler::num() {
+int FileHandler::num() {
     static int num = 0;
     return num++;
 }

@@ -1,9 +1,9 @@
-
+#include <string>
 class FileHandler
 {
    private:
-      SymbolList * defined;
-      SymbolList * undefined;
+      SymbolList* defined;
+      SymbolList* undefined;
 
       //name mangles local symbols
       //puts undefined symbols in undefined list (if not already defined or already in undefined)
