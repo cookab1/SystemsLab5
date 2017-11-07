@@ -15,6 +15,7 @@ void FileHandler::handleObjectSymbol(std::string name, char type){
             defined = false;
             break;
         case 'D':
+        case 'C':
         case 'T':
             defined = true;
             break;
@@ -54,7 +55,8 @@ void FileHandler::handleObjectFile(std::string filename){
     char type;
     std::string name;    
     while(fgets(buffer, 80, filePointer)){
-        sscanf(buffer, "%d", &type, &name); 
+        sscanf(buffer[17], "%c %s ", &type, name); 
+        handleObjectSymbol(name, type);
     }
     pclose(filePointer);
              

@@ -1,0 +1,6 @@
+0000000000000000 T foo
+                 U goobie
+0000000000000000 D initglobal
+                 U myextern
+0000000000000004 C myglobal
+0000000000000000 b mylocal
