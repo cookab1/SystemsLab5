@@ -9,17 +9,55 @@ FileHandler::FileHandler(SymbolList * defined_, SymbolList * undefined_){
 }
 
 void FileHandler::handleObjectSymbol(std::string name, char type){
-    bool defined;
-    switch(type) {
-        case 'U':
-            defined = false;
-            break;
-        case 'D':
-        case 'C':
-        case 'T':
-            defined = true;
-            break;
+    
+    bool invalid = false;
+    bool mds = false; //multiply defined symbol
+    char foundType = NULL;
+     
+    if(type != 'U') {
+        switch(type) {
+            case 'D':
+            case 'T':
+                if(defined.getSymbol(name, &foundType)) {
+                    switch(foundType) {
+                        case 'D':
+                        case 'T':
+                            mds = true; //multiply defined symbol
+                        case 'C':
+                            defined.updateSymbol(name, type);
+                        case default:
+                            invalid = true; //invalid type
+                    }
+                } else if (undefined.findName(name)) {
+                    undefined.removeSymbol(name);
+                    defined.insertSymbol(name, type);
+                }
+                break;
+            case 'C':
+                if(!defined.findName(name))
+                    defined.insertSymbol(name, type);
+                if(undefined.findName(name))
+                    undefined.removeSymbol(name);
+                break;
+            case 'd':
+            case 'b':
+                strcat(name, "." + num());
+                defined.insertSymbol(name, type);
+                break;
+            case default:
+                invalid = true; //invalid type
+                break;
+        }
+    } else {
+        if(!undefined.findName(name)) {
+            undefined.insertSymbol(name, type);
+        }
     }
+}
+
+int FilHandler::num() {
+    static int num = 0;
+    return num++;
 }
 
 bool FileHandler::objectFileNeeded(std::string filename){

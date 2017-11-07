@@ -22,6 +22,9 @@ class FileHandler
    public:
       FileHandler(SymbolList * defined, SymbolList * undefined);
 
+      //Manages the number to give local variables unique names
+      int num();
+
       //returns true if the filename ends with a .a
       bool isArchive(std::string filename);
 
