@@ -31,19 +31,24 @@ void SymbolList::updateSymbol(std::string symbolName, char type) {
 //at the END of the linked list
 void SymbolList::insertSymbol(std::string symbolName, char type) {
     startIterate();
+    symbolEntry *sl = malloc(sizeof(symbolEntry));
+    //{type, symbolName, NULL};
+    sl->type = type;
+    sl->name = symbolName;
+    sl->next = NULL;
     if(iterate == NULL) {
-        first = &symbolEntry;
-        first->name = symbolName;
-        first->type = type;
-        first->next = NULL;
+        first = sl;//{type, symbolName, NULL};//&symbolEntry;
+        //first->name = symbolName;
+        //first->type = type;
+        //first->next = NULL;
     } else {
         while(iterate->next != NULL)
             iterate = iterate->next;
-        iterate->next = &symbolEntry;
-        iterate = iterate->next;
-        iterate->name = symbolName;
-        iterate->type = type;
-        iterate->next = NULL;
+        iterate->next = sl;//{type, symbolName, NULL};//&symbolEntry;
+        //iterate = iterate->next;
+        //iterate->name = symbolName;
+        //iterate->type = type;
+        //iterate->next = NULL;
     }
 }
 

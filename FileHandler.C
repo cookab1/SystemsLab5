@@ -81,7 +81,6 @@ bool FileHandler::isObjectFile(std::string filename){
 }
 
 void FileHandler::handleObjectFile(std::string filename){
-    //unsigned char **buffer = (char**)calloc (80 * 80, sizeof(char*));
     unsigned char *buffer = malloc(80);
     FILE *filePointer;
     std::string nmCommand = strcat("nm ", filename);
