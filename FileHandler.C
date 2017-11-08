@@ -20,6 +20,9 @@ void FileHandler::handleObjectSymbol(std::string name, char type){
     bool invalid = false;
     bool mds = false; //multiply defined symbol
     char foundType = NULL;
+    char * nameArray = new char[name.size() + 1];
+    std::copy(name.begin(), name.end(), nameArray);
+    nameArray[name.size()] = '\0';
      
     if(type != 'U') {
         switch(type) {
@@ -48,7 +51,7 @@ void FileHandler::handleObjectSymbol(std::string name, char type){
                 break;
             case 'd':
             case 'b':
-                strcat(name, "." + num());
+                strcat(nameArray, "." + num());
                 //std::stringstream stream;
                 //stream << num();
                 //std::string tmpName = name + "." + stream.str();
@@ -72,11 +75,16 @@ int FileHandler::num() {
 }
 
 bool FileHandler::objectFileNeeded(std::string filename){
-
+    
+    return 0;
 }
 
 bool FileHandler::isArchive(std::string filename){
-    int strLength = strlen(filename);
+    char * filenameArray = new char[filename.size() + 1];
+    std::copy(filename.begin(), filename.end(),filenameArray);
+    filenameArray[filename.size()] = '\0';
+ 
+    int strLength = strlen(filenameArray);
     if (filename[strLength - 2] == '.' && filename[strLength - 1] == 'a'){
         return 1;
     }
@@ -84,24 +92,43 @@ bool FileHandler::isArchive(std::string filename){
 }
 
 bool FileHandler::isObjectFile(std::string filename){
-    int strLength = strlen(filename);
+    char * filenameArray = new char[filename.size() + 1];
+    std::copy(filename.begin(), filename.end(),filenameArray);
+    filenameArray[filename.size()] = '\0';
+
+    int strLength = strlen(filenameArray);
     if (filename[strLength - 2] == '.' && filename[strLength - 1] == 'o'){
         return 1;
     }
     return 0;
+
 }
 
 void FileHandler::handleObjectFile(std::string filename){
-    unsigned char *buffer = malloc(80);
+    char *buffer = (char*)malloc(80);
     FILE *filePointer;
-    std::string nmCommand = strcat("nm ", filename);
-    filePointer = popen(nmCommand, "r");
+
+    //char * filenameArray = new char[filename.size() + 1];
+
+
+    char nm[10];
+    char fileNameArray[50];
+    std::copy(filename.begin(), filename.end(),fileNameArray);
+    fileNameArray[filename.size()] = '\0';
+
+    strcpy(nm, "nm ");
+    //strcpy(fileNameArray, "");
+
+ 
+    strcat(fileNameArray, nm);
+    //std::string nmCommand = strcat("nm ", filename);
+    filePointer = popen(fileNameArray, "r");
     if (filePointer == NULL){
         std::cout << "popen failed\n";
         exit(1);
     }
     char type;
-    std::string name;    
+    char *name;    
     while(fgets(buffer, 80, filePointer)){
         sscanf(buffer[17], "%c %s ", &type, name); 
         handleObjectSymbol(name, type);
