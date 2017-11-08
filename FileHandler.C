@@ -75,7 +75,7 @@ int FileHandler::num() {
 }
 
 bool FileHandler::objectFileNeeded(std::string filename){
-    
+        
     return 0;
 }
 
@@ -128,9 +128,9 @@ void FileHandler::handleObjectFile(std::string filename){
         exit(1);
     }
     char type;
-    char *name;    
+    char *name = NULL;     
     while(fgets(buffer, 80, filePointer)){
-        sscanf(buffer[17], "%c %s ", &type, name); 
+        sscanf(buffer + 17, "%c %s ", &type, name); 
         handleObjectSymbol(name, type);
     }
     pclose(filePointer);
