@@ -1,7 +1,7 @@
 //Fill in the following:
 //
-//Team member 1:
-//Team member 2:
+//Team member 1: Andy Cook | cookab1
+//Team member 2: Brenner Harris | harrisbd
 //
 #include <iostream>
 #include <cstdlib>
