@@ -137,8 +137,8 @@ bool FileHandler::isObjectFile(std::string filename){
 }
 
 void FileHandler::handleObjectFile(std::string filename){
-    char *buffer = (char*)malloc(80);
-    FILE *filePointer;
+    char *buffer = (char*)malloc(130);
+    FILE *filePointer = NULL;
     const char * filePointerString = ("nm " + filename).c_str();
     filePointer = popen(filePointerString, "r");
     
@@ -150,18 +150,19 @@ void FileHandler::handleObjectFile(std::string filename){
         exit(1);
     }
     char type;
-    char *name = NULL;     
-    char value[30];
-    currLine = fgets(buffer, sizeof(buffer), filePointer);
+    //std::string name = "";
+    char name[80];     
+    //char value[30];
+    currLine = fgets(buffer, 130, filePointer);
     while(currLine != NULL){
-        if (currLine[9] == 'U'){
+        if (currLine[17] == 'U'){
             sscanf(buffer + 17, "%c %s ", &type, name);
         }
         else{
-            sscanf(buffer, "%s %c %s", value, &type, name);
+            sscanf(buffer + 17, "%c %s ", &type, name);
         }
         handleObjectSymbol(name, type);
-        currLine = fgets(buffer, sizeof(buffer), filePointer);
+        currLine = fgets(buffer, 130, filePointer);
     }
     pclose(filePointer);
              
