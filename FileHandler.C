@@ -20,20 +20,22 @@ void FileHandler::handleObjectSymbol(std::string name, char type){
     bool invalid = false;
     bool mds = false; //multiply defined symbol
     char foundType;
-    char * nameArray = new char[name.size() + 1];
+    char * nameArray = new char[name.size() + 2];
     std::copy(name.begin(), name.end(), nameArray);
     nameArray[name.size()] = '\0';
-     
+    int numTwo = 0;
+
     if(type != 'U') {
         switch(type) {
             case 'D':
-            case 'T':
-                if(defined->getSymbol(name, &foundType)) {
+               if(defined->getSymbol(name, &foundType)) {
                     switch(foundType) {
                         case 'D':
                             mds = true;
+                            std::cout << ": multiple definition of " << name << "\n";
                         case 'T':
                             mds = true; //multiply defined symbol
+                            std::cout << ": multiple definition of " << name << "\n";
                         case 'C':
                             defined->updateSymbol(name, type);
                         default:
@@ -41,6 +43,31 @@ void FileHandler::handleObjectSymbol(std::string name, char type){
                     }
                 } else if (undefined->findName(name)) {
                     undefined->removeSymbol(name);
+                    defined->insertSymbol(name, type);
+                }
+                else{
+                    defined->insertSymbol(name, type);
+                }
+                break; 
+            case 'T':
+                if(defined->getSymbol(name, &foundType)) {
+                    switch(foundType) {
+                        case 'D':
+                            mds = true;
+                            std::cout << ": multiple definition of " << name << "\n";
+                        case 'T':
+                            mds = true; //multiply defined symbol
+                            std::cout << ": multiple definition of " << name << "\n";
+                        case 'C':
+                            defined->updateSymbol(name, type);
+                        default:
+                            invalid = true; //invalid type
+                    }
+                } else if (undefined->findName(name)) {
+                    undefined->removeSymbol(name);
+                    defined->insertSymbol(name, type);
+                }
+                else{
                     defined->insertSymbol(name, type);
                 }
                 break;
@@ -51,23 +78,22 @@ void FileHandler::handleObjectSymbol(std::string name, char type){
                     undefined->removeSymbol(name);
                 break;
             case 'd':
+                numTwo = num();
+                sprintf(nameArray, "%s.%d", nameArray, numTwo);
+                defined->insertSymbol(nameArray, type);
+                break;
             case 'b':
-                strcat(nameArray, "." + num());
-                //std::stringstream stream;
-                //stream << num();
-                //std::string tmpName = name + "." + stream.str();
-                
-                defined->insertSymbol(name, type);
+                //strcat(nameArray, );
+                numTwo = num();
+                sprintf(nameArray, "%s.%d", nameArray, numTwo);
+                defined->insertSymbol(nameArray, type);
                 break;
             default:
                 invalid = true; //invalid type
                 break;
         }
-        if (mds){
-            std::cout << ": multiple definition of " << name << "\n";
-        }
     } else {
-        if(!undefined->findName(name)) {
+        if(!undefined->findName(name) && !defined->findName(name)) {
             undefined->insertSymbol(name, type);
         }
     }
@@ -75,6 +101,8 @@ void FileHandler::handleObjectSymbol(std::string name, char type){
 
 int FileHandler::num() {
     static int num = 0;
+    //char tmpChar = num + '0';
+    //num++;
     return num++;
 }
 
@@ -88,14 +116,14 @@ bool FileHandler::objectFileNeeded(std::string filename){
     char * currLine = fgets(buffer, sizeof(buffer), fp);
     char type;
     char name[60];
-    int value = 0;
+    //int value = 0;
     char *typePointer = NULL;
     while(currLine != NULL){
         if (currLine[9] == 'U'){
             sscanf(buffer + 17, "%c %s ", &type, name);
         }
         else{
-            sscanf(buffer, "%d %c %s", &value, &type, name);
+            sscanf(buffer + 17, "%c %s", &type, name);
         }
         if (undefined->getSymbol(name, typePointer)){
             return true;

@@ -99,10 +99,12 @@ bool SymbolList::find1Before(std::string symbolName) {
 }
 
 std::string SymbolList::getNext(char * type){
+    std::string nameHolder = "";
     if (iterate != NULL){
         *type = iterate->type;
+        nameHolder = iterate->name;
         iterate = iterate->next;
-        return iterate->name;
+        return nameHolder;
     }
     return "";
 }

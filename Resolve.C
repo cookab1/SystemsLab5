@@ -49,8 +49,8 @@ void Resolve::printSymbolsAtEnd()
 {
    //add code to see if main is undefined (it should be in the
    //defined list with type 'T')
-   
-   char * t = NULL;
+   char tmpChar = 'T';
+   char * t = &tmpChar;
    
    if (defined->getSymbol("main", t)){
        if (*t == 'T'){
