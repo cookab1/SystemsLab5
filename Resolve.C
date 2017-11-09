@@ -46,12 +46,27 @@ void Resolve::printSymbolsAtEnd()
 {
    //add code to see if main is undefined (it should be in the
    //defined list with type 'T')
-   //
+   
+   char * t = NULL;
+   
+   if (defined->getSymbol("main", t)){
+       if (*t == 'T'){
+       }
+   }
+   else{
+       std::cout << ": undefined reference to main" << "\n";
+   }
+   
    //add code to iterate through undefined list and print out
    //those symbol names
-
    //error messages should be in form:
    // : undefined reference to <symbol>
+   //
+   std::string tempNext = undefined->getNext(t);
+   while (tempNext != ""){
+       std::cout << ": undefined reference to " << tempNext << "\n";
+       tempNext = undefined->getNext(t);
+   }
    
    //print the contents of the defined list
    defined->printSymbols("Defined");
@@ -63,7 +78,14 @@ void Resolve::printSymbolsAtEnd()
 bool Resolve::fileExists(std::string filename)
 {
    //add code to determine if a file exists
+<<<<<<< HEAD
    struct stat fileInfo;
    return stat(filename, &fileInfo) == 0;
+=======
+   FILE *pointer;
+   pointer = fopen(filename.c_str(), "r");
+   return pointer != NULL;
+    
+>>>>>>> 9572a94ceee09153cbcf52b893dfa16036f3546d
 }
 
