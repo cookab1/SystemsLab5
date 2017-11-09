@@ -19,7 +19,7 @@ void FileHandler::handleObjectSymbol(std::string name, char type){
     
     bool invalid = false;
     bool mds = false; //multiply defined symbol
-    char foundType = NULL;
+    char foundType;
     char * nameArray = new char[name.size() + 1];
     std::copy(name.begin(), name.end(), nameArray);
     nameArray[name.size()] = '\0';
@@ -31,6 +31,7 @@ void FileHandler::handleObjectSymbol(std::string name, char type){
                 if(defined->getSymbol(name, &foundType)) {
                     switch(foundType) {
                         case 'D':
+                            mds = true;
                         case 'T':
                             mds = true; //multiply defined symbol
                         case 'C':
@@ -62,6 +63,9 @@ void FileHandler::handleObjectSymbol(std::string name, char type){
                 invalid = true; //invalid type
                 break;
         }
+        if (mds){
+            std::cout << ": multiple definition of " << name << "\n";
+        }
     } else {
         if(!undefined->findName(name)) {
             undefined->insertSymbol(name, type);
@@ -75,8 +79,36 @@ int FileHandler::num() {
 }
 
 bool FileHandler::objectFileNeeded(std::string filename){
-        
-    return 0;
+    //checks if the .o file needs to go to the undefined/defined list
+    //Bascially does the .o file define something that is currently undefined?
+    FILE *fp;
+    const char * fpString = ("nm " + filename).c_str();
+    fp = popen(fpString, "r");
+    char buffer[130];
+    char * currLine = fgets(buffer, sizeof(buffer), fp);
+    char type;
+    char name[60];
+    int value = 0;
+    char *typePointer = NULL;
+    while(currLine != NULL){
+        if (currLine[9] == 'U'){
+            sscanf(buffer + 17, "%c %s ", &type, name);
+        }
+        else{
+            sscanf(buffer, "%d %c %s", &value, &type, name);
+        }
+        if (undefined->getSymbol(name, typePointer)){
+            return true;
+        }
+        else if (defined->getSymbol(name, typePointer)){
+            if (*typePointer == 'C' && (type == 'T' || type == 'D')){
+                return true;
+            }
+        }
+
+        currLine = fgets(buffer, sizeof(buffer), fp);
+    }
+    return false;
 }
 
 bool FileHandler::isArchive(std::string filename){
@@ -107,38 +139,63 @@ bool FileHandler::isObjectFile(std::string filename){
 void FileHandler::handleObjectFile(std::string filename){
     char *buffer = (char*)malloc(80);
     FILE *filePointer;
+    const char * filePointerString = ("nm " + filename).c_str();
+    filePointer = popen(filePointerString, "r");
+    
+    char * currLine;
 
-    //char * filenameArray = new char[filename.size() + 1];
 
-
-    char nm[10];
-    char fileNameArray[50];
-    std::copy(filename.begin(), filename.end(),fileNameArray);
-    fileNameArray[filename.size()] = '\0';
-
-    strcpy(nm, "nm ");
-    //strcpy(fileNameArray, "");
-
- 
-    strcat(fileNameArray, nm);
-    //std::string nmCommand = strcat("nm ", filename);
-    filePointer = popen(fileNameArray, "r");
     if (filePointer == NULL){
         std::cout << "popen failed\n";
         exit(1);
     }
     char type;
     char *name = NULL;     
-    while(fgets(buffer, 80, filePointer)){
-        sscanf(buffer + 17, "%c %s ", &type, name); 
+    char value[30];
+    currLine = fgets(buffer, sizeof(buffer), filePointer);
+    while(currLine != NULL){
+        if (currLine[9] == 'U'){
+            sscanf(buffer + 17, "%c %s ", &type, name);
+        }
+        else{
+            sscanf(buffer, "%s %c %s", value, &type, name);
+        }
         handleObjectSymbol(name, type);
+        currLine = fgets(buffer, sizeof(buffer), filePointer);
     }
     pclose(filePointer);
              
 }
 
 void FileHandler::handleArchive(std::string filename){
-    
+
+   FILE *fp;
+   system("mkdir tmp");
+   const char * systemCall = ("cp " + filename + " ./tmp/tmp.a").c_str();
+   system(systemCall);
+   system("cd tmp; ar -x tmp.a");
+   system("rm tmp.a");
+   fp = popen("ls tmp", "r");
+   if (fp == NULL){
+       std::cout << "popen failed \n";
+       exit(1);
+   }
+   char buffer[130];
+   char * currLine;
+   bool changed = false;
+   do{
+       changed = false;
+       currLine = fgets(buffer, sizeof(buffer), fp);
+       while(currLine != NULL){
+           //add symbols of Oi to defined/undefined lists (updated as necessary)
+           if (objectFileNeeded(currLine)){
+               handleObjectFile(currLine);
+           }
+           changed = true;
+           currLine = fgets(buffer, sizeof(buffer), fp);
+      }
+   }while (changed == true);
+   system("rm -f -r tmp");
 }
 
 
