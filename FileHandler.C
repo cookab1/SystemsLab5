@@ -20,54 +20,85 @@ void FileHandler::handleObjectSymbol(std::string name, char type){
     bool invalid = false;
     bool mds = false; //multiply defined symbol
     char foundType;
-    char * nameArray = new char[name.size() + 1];
+    char * nameArray = new char[name.size() + 2];
     std::copy(name.begin(), name.end(), nameArray);
     nameArray[name.size()] = '\0';
-     
+    int numTwo = 0;
+
     if(type != 'U') {
         switch(type) {
             case 'D':
+               if(defined->getSymbol(name, &foundType)) {
+                    switch(foundType) {
+                        case 'D':
+                            mds = true;
+                            std::cout << ": multiple definition of " << name << "\n";
+                            break;
+                        case 'T':
+                            mds = true; //multiply defined symbol
+                            std::cout << ": multiple definition of " << name << "\n";
+                            break;
+                        case 'C':
+                            defined->updateSymbol(name, type);
+                            break;
+                        default:
+                            invalid = true; //invalid type
+                    }
+                } else if (undefined->getSymbol(name, &foundType)) {
+                    undefined->removeSymbol(name);
+                    defined->insertSymbol(name, type);
+                }
+                else{
+                    defined->insertSymbol(name, type);
+                }
+                break; 
             case 'T':
                 if(defined->getSymbol(name, &foundType)) {
                     switch(foundType) {
                         case 'D':
                             mds = true;
+                            std::cout << ": multiple definition of " << name << "\n";
+                            break;
                         case 'T':
                             mds = true; //multiply defined symbol
+                            std::cout << ": multiple definition of " << name << "\n";
+                            break;
                         case 'C':
                             defined->updateSymbol(name, type);
+                            break;
                         default:
                             invalid = true; //invalid type
                     }
-                } else if (undefined->findName(name)) {
+                } else if (undefined->getSymbol(name, &foundType)) {
                     undefined->removeSymbol(name);
+                    defined->insertSymbol(name, type);
+                }
+                else{
                     defined->insertSymbol(name, type);
                 }
                 break;
             case 'C':
-                if(!defined->findName(name))
+                if(!defined->getSymbol(name, &foundType))
                     defined->insertSymbol(name, type);
-                if(undefined->findName(name))
+                if(undefined->getSymbol(name, &foundType))
                     undefined->removeSymbol(name);
                 break;
             case 'd':
+                numTwo = num();
+                sprintf(nameArray, "%s.%d", nameArray, numTwo);
+                defined->insertSymbol(nameArray, type);
+                break;
             case 'b':
-                strcat(nameArray, "." + num());
-                //std::stringstream stream;
-                //stream << num();
-                //std::string tmpName = name + "." + stream.str();
-                
-                defined->insertSymbol(name, type);
+                numTwo = num();
+                sprintf(nameArray, "%s.%d", nameArray, numTwo);
+                defined->insertSymbol(nameArray, type);
                 break;
             default:
                 invalid = true; //invalid type
                 break;
         }
-        if (mds){
-            std::cout << ": multiple definition of " << name << "\n";
-        }
     } else {
-        if(!undefined->findName(name)) {
+        if(!undefined->findName(name) && !defined->findName(name)) {
             undefined->insertSymbol(name, type);
         }
     }
@@ -87,15 +118,15 @@ bool FileHandler::objectFileNeeded(std::string filename){
     char buffer[130];
     char * currLine = fgets(buffer, sizeof(buffer), fp);
     char type;
+    int val;
     char name[60];
-    int value = 0;
-    char *typePointer = NULL;
+    char *typePointer = &type;
     while(currLine != NULL){
         if (currLine[9] == 'U'){
             sscanf(buffer + 17, "%c %s ", &type, name);
         }
         else{
-            sscanf(buffer, "%d %c %s", &value, &type, name);
+            sscanf(buffer, "%d %c %s", &val, &type, name);
         }
         if (undefined->getSymbol(name, typePointer)){
             return true;
@@ -137,8 +168,8 @@ bool FileHandler::isObjectFile(std::string filename){
 }
 
 void FileHandler::handleObjectFile(std::string filename){
-    char *buffer = (char*)malloc(80);
-    FILE *filePointer;
+    char *buffer = (char*)malloc(130);
+    FILE *filePointer = NULL;
     const char * filePointerString = ("nm " + filename).c_str();
     filePointer = popen(filePointerString, "r");
     
@@ -150,18 +181,17 @@ void FileHandler::handleObjectFile(std::string filename){
         exit(1);
     }
     char type;
-    char *name = NULL;     
-    char value[30];
-    currLine = fgets(buffer, sizeof(buffer), filePointer);
+    char name[80];     
+    currLine = fgets(buffer, 130, filePointer);
     while(currLine != NULL){
-        if (currLine[9] == 'U'){
+        if (currLine[17] == 'U'){
             sscanf(buffer + 17, "%c %s ", &type, name);
         }
         else{
-            sscanf(buffer, "%s %c %s", value, &type, name);
+            sscanf(buffer + 17, "%c %s ", &type, name);
         }
         handleObjectSymbol(name, type);
-        currLine = fgets(buffer, sizeof(buffer), filePointer);
+        currLine = fgets(buffer, 130, filePointer);
     }
     pclose(filePointer);
              
@@ -174,7 +204,7 @@ void FileHandler::handleArchive(std::string filename){
    const char * systemCall = ("cp " + filename + " ./tmp/tmp.a").c_str();
    system(systemCall);
    system("cd tmp; ar -x tmp.a");
-   system("rm tmp.a");
+   system("rm tmp/tmp.a");
    fp = popen("ls tmp", "r");
    if (fp == NULL){
        std::cout << "popen failed \n";
@@ -187,7 +217,6 @@ void FileHandler::handleArchive(std::string filename){
        changed = false;
        currLine = fgets(buffer, sizeof(buffer), fp);
        while(currLine != NULL){
-           //add symbols of Oi to defined/undefined lists (updated as necessary)
            if (objectFileNeeded(currLine)){
                handleObjectFile(currLine);
            }

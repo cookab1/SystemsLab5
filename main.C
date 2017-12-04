@@ -1,13 +1,7 @@
 //Fill in the following:
 //
-<<<<<<< HEAD
 //Team member 1: Andy Cook | cookab1
 //Team member 2: Brenner Harris | harrisbd
-=======
-//Team member 1: Brenner Harris
-//Team member 2: Andy Cook
->>>>>>> 9572a94ceee09153cbcf52b893dfa16036f3546d
-//
 #include <iostream>
 #include <cstdlib>
 #include "SymbolList.h"

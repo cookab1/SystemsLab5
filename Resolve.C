@@ -24,14 +24,17 @@ Resolve::Resolve(int argc, char * argv[])
    for (int i = 1; i < argc; i++)
    {
       
-       if (!fileExists(argv[i]) || 
-          (!handler->isArchive(argv[i]) && !handler->isObjectFile(argv[i])))
+       if (!fileExists(argv[i]) || (!handler->isArchive(argv[i]) && !handler->isObjectFile(argv[i])))
        {
           std::cout << "invalid file: "<< argv[i] << std::endl;
           exit(1);
        }
-       if (handler->isArchive(argv[i])) handler->handleArchive(argv[i]);
-       if (handler->isObjectFile(argv[i])) handler->handleObjectFile(argv[i]);
+       if (handler->isArchive(argv[i])){
+           handler->handleArchive(argv[i]);
+       }
+       if (handler->isObjectFile(argv[i])){
+           handler->handleObjectFile(argv[i]);
+       }
    }
    printSymbolsAtEnd();
    
@@ -46,9 +49,9 @@ void Resolve::printSymbolsAtEnd()
 {
    //add code to see if main is undefined (it should be in the
    //defined list with type 'T')
-   
-   char * t = NULL;
-   
+   char tmpChar;
+   char * t = &tmpChar;
+   undefined->startIterate();
    if (defined->getSymbol("main", t)){
        if (*t == 'T'){
        }
@@ -78,14 +81,8 @@ void Resolve::printSymbolsAtEnd()
 bool Resolve::fileExists(std::string filename)
 {
    //add code to determine if a file exists
-<<<<<<< HEAD
-   struct stat fileInfo;
-   return stat(filename, &fileInfo) == 0;
-=======
    FILE *pointer;
    pointer = fopen(filename.c_str(), "r");
    return pointer != NULL;
-    
->>>>>>> 9572a94ceee09153cbcf52b893dfa16036f3546d
 }
 
