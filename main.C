@@ -1,8 +1,6 @@
 //Fill in the following:
-//
 //Team member 1: Brenner Harris
 //Team member 2: Andy Cook
-//
 #include <iostream>
 #include <cstdlib>
 #include "SymbolList.h"

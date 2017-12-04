@@ -51,7 +51,6 @@ void Resolve::printSymbolsAtEnd()
    //defined list with type 'T')
    char tmpChar;
    char * t = &tmpChar;
-   //defined->printSymbols("defined");
    undefined->startIterate();
    if (defined->getSymbol("main", t)){
        if (*t == 'T'){
@@ -67,10 +66,7 @@ void Resolve::printSymbolsAtEnd()
    // : undefined reference to <symbol>
    //
    std::string tempNext = undefined->getNext(t);
-   //undefined->printSymbols("undefined");
-   //printf("TEMP_NEXT: %s\n", tempNext.c_str());
    while (tempNext != ""){
-       //printf("TEMP_NEXT: %s\n", tempNext.c_str());
        std::cout << ": undefined reference to " << tempNext << "\n";
        tempNext = undefined->getNext(t);
    }

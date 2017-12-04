@@ -70,10 +70,7 @@ void FileHandler::handleObjectSymbol(std::string name, char type){
                             invalid = true; //invalid type
                     }
                 } else if (undefined->getSymbol(name, &foundType)) {
-                    //printf("name: %s\n", name.c_str());
                     undefined->removeSymbol(name);
-                    //printf("undefindedNext: %s", (undefined->getNext(&foundType)).c_str());
-                    //undefined->printSymbols(name);
                     defined->insertSymbol(name, type);
                 }
                 else{
@@ -85,7 +82,6 @@ void FileHandler::handleObjectSymbol(std::string name, char type){
                     defined->insertSymbol(name, type);
                 if(undefined->getSymbol(name, &foundType))
                     undefined->removeSymbol(name);
-                    //undefined->printSymbols(name);
                 break;
             case 'd':
                 numTwo = num();
@@ -93,7 +89,6 @@ void FileHandler::handleObjectSymbol(std::string name, char type){
                 defined->insertSymbol(nameArray, type);
                 break;
             case 'b':
-                //strcat(nameArray, );
                 numTwo = num();
                 sprintf(nameArray, "%s.%d", nameArray, numTwo);
                 defined->insertSymbol(nameArray, type);
@@ -111,8 +106,6 @@ void FileHandler::handleObjectSymbol(std::string name, char type){
 
 int FileHandler::num() {
     static int num = 0;
-    //char tmpChar = num + '0';
-    //num++;
     return num++;
 }
 
@@ -188,9 +181,7 @@ void FileHandler::handleObjectFile(std::string filename){
         exit(1);
     }
     char type;
-    //std::string name = "";
     char name[80];     
-    //char value[30];
     currLine = fgets(buffer, 130, filePointer);
     while(currLine != NULL){
         if (currLine[17] == 'U'){
@@ -225,12 +216,8 @@ void FileHandler::handleArchive(std::string filename){
    do{
        changed = false;
        currLine = fgets(buffer, sizeof(buffer), fp);
-       //printf("currLine: %s\n", currLine);
        while(currLine != NULL){
-           //add symbols of Oi to defined/undefined lists (updated as necessary)
-           //std::cout << "about the hit objectFileNeeded(currLine))\n";
            if (objectFileNeeded(currLine)){
-               //std::cout << "inside the objectFileNeeded condition\n";             
                handleObjectFile(currLine);
            }
            changed = true;
