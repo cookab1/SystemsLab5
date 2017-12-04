@@ -24,17 +24,14 @@ Resolve::Resolve(int argc, char * argv[])
    for (int i = 1; i < argc; i++)
    {
       
-       if (!fileExists(argv[i]) || (!handler->isArchive(argv[i]) && !handler->isObjectFile(argv[i])))
+       if (!fileExists(argv[i]) || 
+          (!handler->isArchive(argv[i]) && !handler->isObjectFile(argv[i])))
        {
           std::cout << "invalid file: "<< argv[i] << std::endl;
           exit(1);
        }
-       if (handler->isArchive(argv[i])){
-           handler->handleArchive(argv[i]);
-       }
-       if (handler->isObjectFile(argv[i])){
-           handler->handleObjectFile(argv[i]);
-       }
+       if (handler->isArchive(argv[i])) handler->handleArchive(argv[i]);
+       if (handler->isObjectFile(argv[i])) handler->handleObjectFile(argv[i]);
    }
    printSymbolsAtEnd();
    
@@ -49,31 +46,12 @@ void Resolve::printSymbolsAtEnd()
 {
    //add code to see if main is undefined (it should be in the
    //defined list with type 'T')
-   char tmpChar;
-   char * t = &tmpChar;
-   //defined->printSymbols("defined");
-   undefined->startIterate();
-   if (defined->getSymbol("main", t)){
-       if (*t == 'T'){
-       }
-   }
-   else{
-       std::cout << ": undefined reference to main" << "\n";
-   }
-   
+   //
    //add code to iterate through undefined list and print out
    //those symbol names
+
    //error messages should be in form:
    // : undefined reference to <symbol>
-   //
-   std::string tempNext = undefined->getNext(t);
-   //undefined->printSymbols("undefined");
-   //printf("TEMP_NEXT: %s\n", tempNext.c_str());
-   while (tempNext != ""){
-       //printf("TEMP_NEXT: %s\n", tempNext.c_str());
-       std::cout << ": undefined reference to " << tempNext << "\n";
-       tempNext = undefined->getNext(t);
-   }
    
    //print the contents of the defined list
    defined->printSymbols("Defined");
@@ -85,8 +63,6 @@ void Resolve::printSymbolsAtEnd()
 bool Resolve::fileExists(std::string filename)
 {
    //add code to determine if a file exists
-   FILE *pointer;
-   pointer = fopen(filename.c_str(), "r");
-   return pointer != NULL;    
+   
 }
 

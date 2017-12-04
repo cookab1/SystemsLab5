@@ -41,7 +41,7 @@ void FileHandler::handleObjectSymbol(std::string name, char type){
                         default:
                             invalid = true; //invalid type
                     }
-                } else if (undefined->findName(name)) {
+                } else if (undefined->getSymbol(name, &foundType)) {
                     undefined->removeSymbol(name);
                     defined->insertSymbol(name, type);
                 }
@@ -63,8 +63,11 @@ void FileHandler::handleObjectSymbol(std::string name, char type){
                         default:
                             invalid = true; //invalid type
                     }
-                } else if (undefined->findName(name)) {
+                } else if (undefined->getSymbol(name, &foundType)) {
+                    //printf("name: %s\n", name.c_str());
                     undefined->removeSymbol(name);
+                    //printf("undefindedNext: %s", (undefined->getNext(&foundType)).c_str());
+                    //undefined->printSymbols(name);
                     defined->insertSymbol(name, type);
                 }
                 else{
@@ -72,10 +75,11 @@ void FileHandler::handleObjectSymbol(std::string name, char type){
                 }
                 break;
             case 'C':
-                if(!defined->findName(name))
+                if(!defined->getSymbol(name, &foundType))
                     defined->insertSymbol(name, type);
-                if(undefined->findName(name))
+                if(undefined->getSymbol(name, &foundType))
                     undefined->removeSymbol(name);
+                    //undefined->printSymbols(name);
                 break;
             case 'd':
                 numTwo = num();
@@ -203,7 +207,7 @@ void FileHandler::handleArchive(std::string filename){
    const char * systemCall = ("cp " + filename + " ./tmp/tmp.a").c_str();
    system(systemCall);
    system("cd tmp; ar -x tmp.a");
-   system("rm tmp.a");
+   system("rm tmp/tmp.a");
    fp = popen("ls tmp", "r");
    if (fp == NULL){
        std::cout << "popen failed \n";

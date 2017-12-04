@@ -57,6 +57,9 @@ void SymbolList::removeSymbol(std::string symbolName) {
     if(find1Before(symbolName)) {
         iterate->next = iterate->next->next;
     }
+    else{
+        first = iterate->next;
+    }
 }
 
 /* printSymbols
