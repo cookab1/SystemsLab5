@@ -33,11 +33,14 @@ void FileHandler::handleObjectSymbol(std::string name, char type){
                         case 'D':
                             mds = true;
                             std::cout << ": multiple definition of " << name << "\n";
+                            break;
                         case 'T':
                             mds = true; //multiply defined symbol
                             std::cout << ": multiple definition of " << name << "\n";
+                            break;
                         case 'C':
                             defined->updateSymbol(name, type);
+                            break;
                         default:
                             invalid = true; //invalid type
                     }
@@ -55,11 +58,14 @@ void FileHandler::handleObjectSymbol(std::string name, char type){
                         case 'D':
                             mds = true;
                             std::cout << ": multiple definition of " << name << "\n";
+                            break;
                         case 'T':
                             mds = true; //multiply defined symbol
                             std::cout << ": multiple definition of " << name << "\n";
+                            break;
                         case 'C':
                             defined->updateSymbol(name, type);
+                            break;
                         default:
                             invalid = true; //invalid type
                     }
@@ -119,15 +125,15 @@ bool FileHandler::objectFileNeeded(std::string filename){
     char buffer[130];
     char * currLine = fgets(buffer, sizeof(buffer), fp);
     char type;
+    int val;
     char name[60];
-    //int value = 0;
-    char *typePointer = NULL;
+    char *typePointer = &type;
     while(currLine != NULL){
         if (currLine[9] == 'U'){
             sscanf(buffer + 17, "%c %s ", &type, name);
         }
         else{
-            sscanf(buffer + 17, "%c %s", &type, name);
+            sscanf(buffer, "%d %c %s", &val, &type, name);
         }
         if (undefined->getSymbol(name, typePointer)){
             return true;
@@ -219,9 +225,12 @@ void FileHandler::handleArchive(std::string filename){
    do{
        changed = false;
        currLine = fgets(buffer, sizeof(buffer), fp);
+       //printf("currLine: %s\n", currLine);
        while(currLine != NULL){
            //add symbols of Oi to defined/undefined lists (updated as necessary)
+           //std::cout << "about the hit objectFileNeeded(currLine))\n";
            if (objectFileNeeded(currLine)){
+               //std::cout << "inside the objectFileNeeded condition\n";             
                handleObjectFile(currLine);
            }
            changed = true;
